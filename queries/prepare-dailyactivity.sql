@@ -1,10 +1,9 @@
-SELECT 
-  COUNT(*) AS total,
-  COUNTIF(daily_activity.TotalSteps IS NULL) AS missing_steps
-FROM `bellabeat-project-480011`.`bellabeat`.`daily_activity` AS daily_activity;
+-- Prepare Phase (daily_activity)
 
+-- Null check across coloumns in daily_activity 
 SELECT
   COUNT(*) AS total,
+  COUNTIF(daily_activity.TotalSteps IS NULL) AS missing_steps,
   COUNTIF(TotalDistance IS NULL) AS null_distance,
   COUNTIF(TrackerDistance IS NULL) AS null_tracker,
   COUNTIF(VeryActiveDistance IS NULL) AS null_ActiveDistance,
@@ -16,7 +15,10 @@ SELECT
   COUNTIF(SedentaryMinutes IS NULL) AS null_sminutes,
   COUNTIF(Calories IS NULL) AS null_calories
 FROM `bellabeat-project-480011`.`bellabeat`.`daily_activity`;
+-- there were no zero value found.
 
+
+-- Duplicate check by user and date
 SELECT 
   Id, 
   ActivityDate,
@@ -24,14 +26,9 @@ SELECT
 FROM `bellabeat-project-480011.bellabeat.daily_activity`
 GROUP BY Id, ActivityDate
 HAVING COUNT(*) > 1;
+-- there were no duplicates in Id and date found.
 
-
-SELECT Id,TotalSteps,
- COUNT(*) AS Duplicates,
-FROM `bellabeat-project-480011.bellabeat.daily_activity`
-GROUP BY Id, TotalSteps
-HAVING COUNT(*) > 1;
-
+-- Removed unused and redundant coloumns for easier analysis
 ALTER TABLE `bellabeat-project-480011.bellabeat.daily_activity`
 DROP COLUMN IF EXISTS LoggedActivitiesDistance,
 DROP COLUMN IF EXISTS SedentaryActiveDistance;
