@@ -1,0 +1,54 @@
+-- Outliers
+-- Heart rate invalid range
+SELECT
+  CASE
+    WHEN Value < 30 THEN 'Below 30 (invalid)'
+    WHEN Value BETWEEN 30 AND 59 THEN 'Low'
+    WHEN Value BETWEEN 60 AND 100 THEN 'Normal'
+    WHEN Value BETWEEN 101 AND 180 THEN 'High (activity)'
+    ELSE 'Above 180 (extreme)'
+  END AS heart_rate_range,
+  COUNT(*) AS count
+FROM `bellabeat-project-480011.bellabeat.heartrate_seconds`
+GROUP BY heart_rate_range
+ORDER BY count DESC;
+-- there were 6 values more than 180 (extreme).
+
+-- Steps invalid range
+SELECT
+ CASE
+  WHEN Steps > 250 THEN 'Above 250 (invalid)'
+  ELSE 'Valid'
+ END AS steps_range,
+ COUNT(*) AS count
+FROM `bellabeat-project-480011.bellabeat.minute_steps`
+GROUP BY steps_range
+ORDER BY count DESC;
+-- all values valid.
+
+-- Hourly step invalid range
+SELECT 
+ CASE 
+  WHEN StepTotal > 12000 THEN 'above 12000 (suspect/outlier)'
+  WHEN StepTotal > 15000 THEN 'above 15000 (physically impossible)'
+  ELSE 'valid'
+ END AS step_total_range,
+ COUNT(*) AS count
+FROM bellabeat-project-480011.bellabeat.hourly_steps  GROUP BY step_total_range
+ORDER BY count DESC;
+-- all values valid.
+
+-- Daily activity steps invalid range
+SELECT
+  CASE
+    WHEN TotalSteps < 500 THEN 'Very Low (Likely not worn)'
+    WHEN TotalSteps BETWEEN 500 AND 30000 THEN 'Typical Range'
+    WHEN TotalSteps BETWEEN 30001 AND 50000 THEN 'Extreme Activity'
+    WHEN TotalSteps > 50000 THEN 'Potential Outlier (>50k)'
+  END AS activity_category,
+  COUNT(*) AS record_count,
+  ROUND(AVG(TotalSteps), 2) AS average_steps_in_group
+FROM `bellabeat-project-480011.bellabeat.daily_activity`
+GROUP BY activity_category
+ORDER BY record_count DESC;
+-- one extreme activity value found.
