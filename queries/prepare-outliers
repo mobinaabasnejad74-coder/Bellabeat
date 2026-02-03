@@ -52,3 +52,63 @@ FROM `bellabeat-project-480011.bellabeat.daily_activity`
 GROUP BY activity_category
 ORDER BY record_count DESC;
 -- one extreme activity value found.
+
+-- minute_MET invalid range
+SELECT
+ CASE
+    WHEN METs < 10 THEN 'Below 10 (Physically Impossible)'
+    WHEN METs > 200 THEN 'Above 200 (Extreme Outlier)'  ELSE 'valid'
+ END AS METs_valid_range,
+ COUNT (*) AS count
+FROM `bellabeat-project-480011.bellabeat.minute_MET`
+GROUP BY METs_valid_range
+ORDER BY count DESC;
+-- 14 valuse found under 10.
+
+-- hourly_calories invalid range
+SELECT
+  CASE
+    WHEN Calories = 0 THEN 'Zero Calories (Physically Impossible)'
+    WHEN Calories < 30 THEN 'Below Typical BMR (<30 kcal)'
+    WHEN Calories > 700 THEN 'Extreme Calorie Burn (>700 kcal)'
+    ELSE 'Logical Range'
+  END AS calorie_validity,
+  COUNT(*) AS record_count
+FROM `bellabeat-project-480011.bellabeat.hourly_calories`
+GROUP BY calorie_validity
+ORDER BY record_count DESC;
+-- 12 values found over 700, extreme calorie burn.
+
+-- minute_sleep invalid range
+SELECT
+  Id,
+
+  EXTRACT(DATE FROM PARSE_TIMESTAMP('%m/%d/%Y %I:%M:%S %p', date)) AS sleep_date,
+  
+  ROUND(COUNTIF(value = 1) / 60, 2) AS total_sleep_hours, 
+  
+  CASE 
+    WHEN COUNTIF(value = 1) / 60 < 2 THEN 'Under 2hrs (Short/Nap)'
+    WHEN COUNTIF(value = 1) / 60 > 15 THEN 'Over 15hrs (Extreme Outlier)'
+    ELSE 'Typical Sleep'
+  END AS sleep_category
+FROM `bellabeat-project-480011.bellabeat.minute_sleep`
+WHERE value = 1 
+GROUP BY Id, sleep_date
+ORDER BY total_sleep_hours DESC;
+-- 1 ID found wiht over 15 hours, outlier.
+
+-- weight_loginfo
+SELECT
+  Id,
+  BMI,
+  Fat,
+  CASE
+    WHEN BMI < 10 OR BMI > 70 THEN 'BMI Outlier (Manual Entry Error)'
+    WHEN Fat > 60 THEN 'Body Fat % Suspect (>60%)'
+    WHEN Fat = 0 THEN 'Missing/Placeholder Fat Value'
+    ELSE 'Logical Range'
+  END AS weight_validity_check
+FROM `bellabeat-project-480011.bellabeat.weight_loginfo`
+ORDER BY BMI DESC;
+-- all logical range. the Fat coloumn are all null.
